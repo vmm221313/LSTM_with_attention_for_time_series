@@ -1,2 +1,1 @@
-# LSTM_for_time_series
-# LSTM_time_series
+# LSTM_with_attention_for_time_series
