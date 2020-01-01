@@ -9,7 +9,7 @@ def get_data_for_given_ticker(ticker, input_dim, start_date, end_date, train):
         df = po.read_csv('merged_data_without_embeddings/' + ticker + 'merged.csv')
         df = df[(df['date'] >= start_date) & (df['date'] <= end_date)].reset_index(drop = True)
         
-        df = df[df['No. Trades'] != 0].reset_index(drop = True)
+        df = df[df['class'] != 5].reset_index(drop = True)
         
         
         df['Return_class'] = df['class'].shift(1)
@@ -42,16 +42,19 @@ def get_data_for_given_ticker(ticker, input_dim, start_date, end_date, train):
         targets = df['class']
         targets = targets.drop(infs)
         
+        dates = df['date']
+        dates = dates.drop(infs)
+
+        assert len(train) == len(targets) == len(dates)
+        
         print(len(train))
-        return train, targets
+        return train, targets, dates
         
     elif train == False:
         df = po.read_csv('merged_data_without_embeddings/' + ticker + 'merged.csv')
         #print(df['date'])
         df = df[(df['date'] >= start_date) & (df['date'] <= end_date)].reset_index(drop = True)
-        df = df[df['No. Trades'] != 0].reset_index(drop = True)
-        
-        
+        df = df[df['class'] != 5].reset_index(drop = True)
  
         df['Return_class'] = df['class'].shift(1)
         a=df.iloc[0]['Return_class']
@@ -83,8 +86,13 @@ def get_data_for_given_ticker(ticker, input_dim, start_date, end_date, train):
         targets = df['class']
         targets = targets.drop(infs)
         
+        dates = df['date']
+        dates = dates.drop(infs)
+
+        assert len(test) == len(targets) == len(dates)
+        
         print(len(test))
-        return test, targets
+        return test, targets, dates
 
 # import pandas as po
 # df = po.read_csv('merged_data_without_embeddings/' + 'CLc1' + 'merged.csv')

@@ -39,7 +39,7 @@ class baseLSTM(nn.Module):
         self.fc7 = nn.Linear(input_dim*5, input_dim*2, bias = False)
         self.fc8 = nn.Linear(input_dim*2, input_dim, bias = False)
         
-        self.lstm = nn.LSTM(input_dim, hidden_dim, bias = False, dropout = 0.2)
+        self.lstm = nn.LSTM(input_dim, hidden_dim, bias = False)
         
         self.fc1 = nn.Linear(hidden_dim, hidden_dim*2, bias = False)
         self.fc2 = nn.Linear(hidden_dim*2, hidden_dim, bias = False)
@@ -49,7 +49,7 @@ class baseLSTM(nn.Module):
         self.fc9 = nn.Linear(int(hidden_dim/10), int(hidden_dim/20), bias = False)
         self.fc10 = nn.Linear(int(hidden_dim/20), num_output_classes, bias = False)
         
-        #self.dropout = nn.Dropout(p = 0.2)
+        self.dropout = nn.Dropout(p = 0.2)
         #self.softmax = nn.Softmax(dim = 1)
 
     def attention_net(self, all_hidden_states, next_hidden_state):
@@ -70,7 +70,7 @@ class baseLSTM(nn.Module):
         all_hidden_states, (next_hidden_state, next_cell_state) = self.lstm(input_, (hidden_state, cell_state))
         # note - all_hidden_states[-1] = next_hidden_state
         
-        #print(next_hidden_state)
+        next_hidden_state = self.softmax(next_cell_state, dim = 1)
         
         next_hidden_state = self.attention_net(all_hidden_states, next_hidden_state)
         
