@@ -1,5 +1,11 @@
 import pandas as po
-from hyperopt import fmin, tpe, hp, STATUS_OK
+from hyperopt import fmin, tpe, hp, STATUS_OK 
+
+# from ray import tune
+# import ray
+# from ray.tune import track
+# track.init()
+
 import os
 from sklearn.metrics import f1_score
 
@@ -60,7 +66,7 @@ def perform_gridSearch(ticker, window_size, train_from, train_until, model, loss
 #             param_group['lr'] = config['lr']
 #             
 #         num_epochs = config['num_epochs']
-#         
+#         dropout_prob = config['dropout']
 #         
 #         
 #         for i in range(3):
