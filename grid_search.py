@@ -1,11 +1,5 @@
 import pandas as po
-from hyperopt import fmin, tpe, hp, STATUS_OK 
-
-# from ray import tune
-# import ray
-# from ray.tune import track
-# track.init()
-
+from hyperopt import fmin, tpe, hp, STATUS_OK
 import os
 from sklearn.metrics import f1_score
 
@@ -19,7 +13,7 @@ from trainer import train
 from tester import test
 
 
-def perform_gridSearch(ticker, window_size, train_from, train_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, retrain_while_testing, retrain_after, dropout_prob):
+def perform_gridSearch(ticker, window_size, train_from, train_until, test_from, test_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, retrain_while_testing, retrain_after, dropout_prob):
     best_f1 = 0
     
     def gridSearch(space):
@@ -33,7 +27,7 @@ def perform_gridSearch(ticker, window_size, train_from, train_until, model, loss
             param_group['lr'] = lr
         print(window_size)
         model_m, (hidden_state, cell_state) = train(ticker, window_size, train_from, train_until, model_m, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, dropout_prob)
-        predictions_df = test(ticker, window_size, test_from, test_until, retrain_while_testing, retrain_after, model, hidden_state, cell_state, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim)
+        predictions_df, model_m = test(ticker, window_size, test_from, test_until, retrain_while_testing, retrain_after, model, hidden_state, cell_state, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, dropout_prob)
         f1 = f1_score(predictions_df['Actual_Value'], predictions_df['Predictions'],average='weighted')
 
         if (f1 > best_f1):
@@ -66,7 +60,7 @@ def perform_gridSearch(ticker, window_size, train_from, train_until, model, loss
 #             param_group['lr'] = config['lr']
 #             
 #         num_epochs = config['num_epochs']
-#         dropout_prob = config['dropout']
+#         
 #         
 #         
 #         for i in range(3):
