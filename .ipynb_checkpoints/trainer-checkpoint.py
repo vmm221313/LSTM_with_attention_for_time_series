@@ -4,9 +4,10 @@ import torch.functional as F
 import torch.optim as optim
 from dataloader import get_data_for_given_ticker
 from tqdm import tqdm
+from tqdm import tqdm_notebook
 import pandas as po
 
-def train(ticker, window_size, train_from, train_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim):
+def train(ticker, window_size, train_from, train_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, dropout_prob):
     
     train_df, targets, dates = get_data_for_given_ticker(ticker, input_dim, start_date = train_from, end_date = train_until, train = True)
     
@@ -22,14 +23,14 @@ def train(ticker, window_size, train_from, train_until, model, loss_function, op
     
     cell_state = torch.randn(1, 1, hidden_dim)
     
-    for epoch in range(num_epochs):
-        for i in tqdm(range(window_size, len(train_df))):
+    for epoch in range(int(num_epochs)):
+        for i in tqdm_notebook(range(window_size, len(train_df))):
             model.zero_grad()
             
             #print(train_df[i-window_size:i][0]) #print this to check if the rolling windows are working correctly
             
             input_ = torch.tensor(train_df[i-window_size:i].to_numpy(), dtype = torch.float).view(window_size, 1, input_dim)
-            prediction, (hidden_state, cell_state) = model(input_, hidden_state, cell_state)
+            prediction, (hidden_state, cell_state) = model(input_, hidden_state, cell_state, dropout_prob)
             
             target = torch.tensor([targets[i]], dtype = torch.long)
             prediction = prediction + 10**(-8)

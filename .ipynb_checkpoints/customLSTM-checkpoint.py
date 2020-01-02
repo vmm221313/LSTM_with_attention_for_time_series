@@ -49,7 +49,8 @@ class baseLSTM(nn.Module):
         self.fc9 = nn.Linear(int(hidden_dim/10), int(hidden_dim/20), bias = False)
         self.fc10 = nn.Linear(int(hidden_dim/20), num_output_classes, bias = False)
         
-        self.dropout = nn.Dropout(p = 0.2)
+        #self.dropout = nn.Dropout(p = 0.2)
+        #self.dropout_prob = dropout_prob
         #self.softmax = nn.Softmax(dim = 1)
 
     def attention_net(self, all_hidden_states, next_hidden_state):
@@ -61,7 +62,7 @@ class baseLSTM(nn.Module):
         #https://github.com/prakashpandey9/Text-Classification-Pytorch/blob/master/models/LSTM_Attn.py
         return new_hidden_state
 
-    def forward(self, input_, hidden_state, cell_state):
+    def forward(self, input_, hidden_state, cell_state, dropout_prob):
         
         fc_on_row = self.fc6(input_)
         fc_on_row = self.fc7(fc_on_row)
@@ -70,7 +71,7 @@ class baseLSTM(nn.Module):
         all_hidden_states, (next_hidden_state, next_cell_state) = self.lstm(input_, (hidden_state, cell_state))
         # note - all_hidden_states[-1] = next_hidden_state
         
-        next_hidden_state = self.softmax(next_cell_state, dim = 1)
+        next_hidden_state = nn.Dropout(p = dropout_prob)(next_hidden_state)
         
         next_hidden_state = self.attention_net(all_hidden_states, next_hidden_state)
         
