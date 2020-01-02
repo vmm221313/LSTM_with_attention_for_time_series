@@ -14,10 +14,11 @@ from tester import test
 
 
 def perform_gridSearch(ticker, window_size, train_from, train_until, test_from, test_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, retrain_while_testing, retrain_after, dropout_prob):
-    best_f1 = 0
+  
     
     def gridSearch(space):
         global best_lr, best_num_epochs, best_dropout_prob, best_f1
+        best_f1 = 0
         model_m=model
         lr = space['lr']
         num_epochs = space['num_epochs']
@@ -43,9 +44,10 @@ def perform_gridSearch(ticker, window_size, train_from, train_until, test_from, 
         return {'loss': f1, 'status': STATUS_OK }
     
     space = {
-    'lr': hp.uniform('lr', 0.001, 0.1),
-    'num_epochs': hp.uniform('num_epochs', 5, 10),
-    'dropout_prob': hp.uniform('dropout_prob', 0.1, 0.2)
+    'lr': hp.choice('lr', [0.001, 0.01]),
+    'num_epochs': hp.choice('num_epochs', [1]),
+    #'num_epochs': hp.quniform('num_epochs', 5, 6, 1),
+    'dropout_prob': hp.quniform('dropout_prob', 0.2, 0.25, 0.05)
     }
 
     best_scores = fmin(fn=gridSearch, space=space, algo=tpe.suggest, max_evals=3)

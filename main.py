@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import os
-from sklearn.metrics import f1_score
 
 from grid_search import perform_gridSearch
 from customLSTM import baseLSTM
@@ -43,23 +41,20 @@ model = baseLSTM(input_dim, hidden_dim, num_output_classes, window_size)
 loss_function = nn.CrossEntropyLoss(ignore_index = 5, weight = weights)
 optimizer = optim.Adam(model.parameters(), lr=0.1)
 
-best_scores = perform_gridSearch(ticker, window_size, train_from, train_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, retrain_while_testing, retrain_after, dropout_prob) 
+best_scores = perform_gridSearch(ticker, window_size, train_from, train_until, test_from, test_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, retrain_while_testing, retrain_after, dropout_prob) 
 
 model, (hidden_state, cell_state) = train(ticker, window_size, train_from, train_until, model, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, dropout_prob)
 
 torch.save(model.state_dict(), 'saved_models/'+ticker+'_'+str(hidden_dim)+'_' + train_from + '_' + train_until + '_'+str(num_epochs) + '_no_embeddings_warm_start_attention')
 
-predictions_df = test(ticker, window_size, test_from, test_until, input_dim, model, hidden_state, cell_state, dropout_prob)
+predictions_df, model = test(ticker, window_size, test_from, test_until, retrain_while_testing, retrain_after, model, hidden_state, cell_state, loss_function, optimizer, num_epochs, input_dim, num_output_classes, hidden_dim, dropout_prob)
+
+torch.save(model.state_dict(), 'saved_models/'+ticker+'_'+str(hidden_dim)+'_' + train_from + '_' + train_until + '_'+str(num_epochs) + '_no_embeddings_warm_start_attention_retrained_while_testing')
 
 predictions_df['Predictions'].value_counts()
 
 predictions_df['Actual_Value'].value_counts()
 
-
-
-
-
-# predictions_df['Actual_Value'].value_counts()
 
 # from sklearn.metrics import classification_report
 
